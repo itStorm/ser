@@ -6,20 +6,27 @@ ln -s /vagrant/wwwroot/ser/configs/nginx/report.familoop.com.conf /etc/nginx/sit
 
 2. Install nginx module
 
-apt-get build-dep nginx
-mk nginx-custom
+apt-get build-dep nginx§§
+mkdir nginx-custom
 cd nginx-custom
 apt-get source nginx
 cd nginx-1.6.2/debian/modules/
 git clone https://github.com/vkholodkov/nginx-upload-module.git
 
-nano ../../rules
+nano ../rules
  add "--add-module=$(MODULESDIR)/nginx-upload-module"
 
-nano ../../changelog
+nano ../changelog
  add info to version
 
 sudo dpkg-buildpackage -b
 
 
 sudo dpkg -i nginx-common_1.6.2-5+deb8u1-upload-module_all.deb nginx-full_1.6.2-5+deb8u1-upload-module_amd64.deb
+
+3. Install RabbitMQ
+
+apt-get -y install rabbitmq-server
+rabbitmq-plugins enable rabbitmq_management
+ln -s /vagrant/wwwroot/ser/configs/rabbitmq/rabbitmq.config /etc/rabbitmq/
+
