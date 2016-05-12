@@ -5,7 +5,7 @@ use Composer\Autoload\ClassLoader;
 /** @var ClassLoader $loader */
 $loader = require __DIR__ . '/../vendor/autoload.php';
 
-$loader->addPsr4('Common\\', __DIR__.'/common');
+$loader->addPsr4('Ser\\', __DIR__ . '/');
 
 
 /*

@@ -1,0 +1,37 @@
+imports:
+    - { resource: parameters.yml }
+
+old_sound_rabbit_mq:
+    connections:
+        default:
+            host:     '%amqp.host%'
+            port:     '%amqp.port%'
+            user:     '%amqp.user%'
+            password: '%amqp.password%'
+            vhost:    '/'
+            lazy:     true
+            connection_timeout: 3
+            read_write_timeout: 3
+
+            # requires php-amqplib v2.4.1+ and PHP5.4+
+            keepalive: true
+
+            # requires php-amqplib v2.4.1+
+            heartbeat: 0
+    producers:
+        upload_log:
+            connection:       default
+            exchange_options: {name: 'upload.log', type: direct}
+    consumers:
+        upload_log:
+            connection:       default
+            exchange_options: {name: 'upload.log', type: direct}
+            queue_options:    {name: 'upload.log'}
+            callback:         logfileConsumer
+
+services:
+    logfileConsumer:
+        class:  Ser\Services\LogfileConsumer
+    logfileHandler:
+        class:  Ser\Services\LogfileHandler
+
