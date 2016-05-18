@@ -14,10 +14,12 @@ use Symfony\Component\Console\Input\InputOption;
 class ClearReportsCommand extends Command
 {
 
-    // @todo временно тут задем переместит в parameters.yml
-    const REPORTS_PATH = '/home/vagrant/wwwroot/ser/reports';
-    const OLD_REPORT_TIME_DIFF = 600; // 10 min
+    /** @var string */
+    protected $path;
+    /** @var  int */
+    protected $oldReportTimeDiff;
 
+    /** @inheritdoc */
     protected function configure()
     {
         $this
@@ -31,23 +33,32 @@ class ClearReportsCommand extends Command
             );
     }
 
+    /** @inheritdoc */
+    public function initialize(InputInterface $input, OutputInterface $output)
+    {
+        parent::initialize($input, $output);
+        $this->path = $this->getContainer()->getParameter('ser.reports.path');
+        $this->oldReportTimeDiff = $this->getContainer()->getParameter('ser.reports.old_file_time_diff');
+    }
+
+    /** @inheritdoc */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $debug = $input->getOption('debug');
         $currentTimestamp = time();
 
-        $directoryIterator = new \DirectoryIterator(static::REPORTS_PATH);
+        $directoryIterator = new \DirectoryIterator($this->path);
 
         foreach ($directoryIterator as $item) {
             if (!$item->getFileInfo()->isFile()
                 || in_array($item->getFilename(), ['.gitignore'])
-                || $currentTimestamp - $item->getATime() < static::OLD_REPORT_TIME_DIFF
+                || $currentTimestamp - $item->getATime() < $this->oldReportTimeDiff
             ) {
                 continue;
             }
 
-            $filePath = static::REPORTS_PATH . '/' . $item->getFilename();
-            unlink(static::REPORTS_PATH . '/' . $item->getFilename());
+            $filePath = $this->path . '/' . $item->getFilename();
+            unlink($this->path . '/' . $item->getFilename());
             if ($debug) {
                 $output->writeln("Delete file {$filePath}");
             }

@@ -35,3 +35,9 @@ services:
     logfileHandler:
         class:  Ser\Service\LogfileHandler
 
+ser:
+    reports:
+        path:               '%reports.path%'
+        old_file_time_diff: %reports.old_file_time_diff%
+
+
