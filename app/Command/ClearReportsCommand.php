@@ -13,10 +13,15 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class ClearReportsCommand extends Command
 {
+
+    // @todo временно тут задем переместит в parameters.yml
+    const REPORTS_PATH = '/home/vagrant/wwwroot/ser/reports';
+    const OLD_REPORT_TIME_DIFF = 600; // 10 min
+
     protected function configure()
     {
         $this
-            ->setName('amqp:consumer-logfile')
+            ->setName('reports:clear-files')
             ->setDescription('Handling uploaded log files')
             ->addOption(
                 'debug',
@@ -28,7 +33,24 @@ class ClearReportsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-//        var_dump($input->getOption('debug'));
-        $output->writeln('Consumer');
+        $debug = $input->getOption('debug');
+        $currentTimestamp = time();
+
+        $directoryIterator = new \DirectoryIterator(static::REPORTS_PATH);
+
+        foreach ($directoryIterator as $item) {
+            if (!$item->getFileInfo()->isFile()
+                || in_array($item->getFilename(), ['.gitignore'])
+                || $currentTimestamp - $item->getATime() < static::OLD_REPORT_TIME_DIFF
+            ) {
+                continue;
+            }
+
+            $filePath = static::REPORTS_PATH . '/' . $item->getFilename();
+            unlink(static::REPORTS_PATH . '/' . $item->getFilename());
+            if ($debug) {
+                $output->writeln("Delete file {$filePath}");
+            }
+        }
     }
 }

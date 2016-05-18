@@ -3,3 +3,5 @@ parameters:
     amqp.port: 5672
     amqp.user: guest
     amqp.password: guest
+    reports.path: /home/vagrant/wwwroot/ser/reports
+    reports.old_file_time_diff: 600
