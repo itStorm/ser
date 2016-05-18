@@ -1,5 +1,5 @@
 <?php
-namespace Ser\Services;
+namespace Ser\Service;
 
 use Symfony\Component\HttpFoundation\Request;
 use OldSound\RabbitMqBundle\RabbitMq\Producer;

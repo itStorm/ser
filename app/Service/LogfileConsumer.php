@@ -1,5 +1,5 @@
 <?php
-namespace Ser\Services;
+namespace Ser\Service;
 
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -10,8 +10,10 @@ use PhpAmqpLib\Message\AMQPMessage;
  */
 class LogfileConsumer implements ConsumerInterface
 {
-    public function execute(AMQPMessage $msg)
+    public function execute(AMQPMessage $amqpMessage)
     {
-        var_dump('Process message', $msg);
+        $message = unserialize($amqpMessage->getBody());
+        var_dump($message);
+        return 0;
     }
 }

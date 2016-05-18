@@ -31,7 +31,7 @@ old_sound_rabbit_mq:
 
 services:
     logfileConsumer:
-        class:  Ser\Services\LogfileConsumer
+        class:  Ser\Service\LogfileConsumer
     logfileHandler:
-        class:  Ser\Services\LogfileHandler
+        class:  Ser\Service\LogfileHandler
 
