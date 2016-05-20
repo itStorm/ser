@@ -5,3 +5,4 @@ parameters:
     amqp.password: guest
     reports.path: /home/vagrant/wwwroot/ser/reports
     reports.old_file_time_diff: 600
+    sentry.dsn: https://key@sentry.dev/10

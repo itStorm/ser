@@ -26,6 +26,11 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('old_file_time_diff')->defaultNull()->end()
                     ->end()
                 ->end()
+                ->arrayNode('sentry')
+                    ->children()
+                        ->scalarNode('dsn')->defaultNull()->end()
+                    ->end()
+                ->end()
             ->end();
 
         // Here you should define the parameters that are allowed to

@@ -10,6 +10,19 @@ use PhpAmqpLib\Message\AMQPMessage;
  */
 class LogfileConsumer implements ConsumerInterface
 {
+    /** @var string */
+    protected $sentryDsn;
+
+    /**
+     * LogfileConsumer constructor.
+     * @param string $sentryDsn
+     */
+    public function __construct($sentryDsn)
+    {
+        $this->sentryDsn = $sentryDsn;
+    }
+
+
     public function execute(AMQPMessage $amqpMessage)
     {
         $zipArchive = new \ZipArchive();
@@ -49,8 +62,8 @@ class LogfileConsumer implements ConsumerInterface
             }
 
             if ($error && (preg_match('/^line  : .*$/', $currLine) || $countErrorStrings > 9)) {
-                // @todo заменить echo на отправку ошибки в Sentry
-                echo $error;
+                $client = new \Raven_Client($this->sentryDsn);
+                $client->captureMessage($error);
                 $error = null;
                 $countErrorStrings = 0;
             }

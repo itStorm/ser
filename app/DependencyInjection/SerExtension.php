@@ -23,5 +23,6 @@ class SerExtension extends Extension
 
         $container->setParameter('ser.reports.path', $config['reports']['path']);
         $container->setParameter('ser.reports.old_file_time_diff', $config['reports']['old_file_time_diff']);
+        $container->setParameter('ser.sentry.dsn', $config['sentry']['dsn']);
     }
 }

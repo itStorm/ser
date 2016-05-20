@@ -29,15 +29,18 @@ old_sound_rabbit_mq:
             queue_options:    {name: 'upload.log'}
             callback:         logfileConsumer
 
-services:
-    logfileConsumer:
-        class:  Ser\Service\LogfileConsumer
-    logfileHandler:
-        class:  Ser\Service\LogfileHandler
-
 ser:
     reports:
         path:               '%reports.path%'
         old_file_time_diff: %reports.old_file_time_diff%
+    sentry:
+        dsn: '%sentry.dsn%'
+
+services:
+    logfileHandler:
+        class:  Ser\Service\LogfileHandler
+    logfileConsumer:
+        class:  Ser\Service\LogfileConsumer
+        arguments: ['%sentry.dsn%']
 
 
