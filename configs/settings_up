@@ -30,3 +30,8 @@ apt-get -y install rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
 ln -s /vagrant/wwwroot/ser/configs/rabbitmq/rabbitmq.config /etc/rabbitmq/
 
+4. Add in crontab command fof clear old logs
+app/console reports:clear-files
+
+5. Handle log files command
+app/console rabbitmq:consumer -w -l 256 -m 1 upload_log

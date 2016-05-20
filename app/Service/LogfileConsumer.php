@@ -3,7 +3,6 @@ namespace Ser\Service;
 
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Class LogfileConsumer
@@ -36,9 +35,26 @@ class LogfileConsumer implements ConsumerInterface
         }
 
         // Read file
-        while (($buffer = fgets($logResource)) !== false) {
+        $prevLines = '';        // Line before
+        $error = null;          // Error text
+        $countErrorStrings = 0; // Error strings count
 
-            echo 'String: ' . $buffer;
+        while (($currLine = fgets($logResource)) !== false) {
+            if (preg_match('/^descr : .*$/', $currLine)) {
+                $error = $prevLines . $currLine;
+                $countErrorStrings = 2;
+            } elseif ($error) {
+                $error .= $currLine;
+                $countErrorStrings++;
+            }
+
+            if ($error && (preg_match('/^line  : .*$/', $currLine) || $countErrorStrings > 9)) {
+                // @todo заменить echo на отправку ошибки в Sentry
+                echo $error;
+                $error = null;
+                $countErrorStrings = 0;
+            }
+            $prevLines = $currLine;
         }
 
         fclose($logResource);
