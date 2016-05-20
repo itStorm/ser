@@ -22,7 +22,7 @@ class LogfileConsumer implements ConsumerInterface
         $this->sentryDsn = $sentryDsn;
     }
 
-
+    /** @inheritdoc */
     public function execute(AMQPMessage $amqpMessage)
     {
         $zipArchive = new \ZipArchive();
@@ -48,29 +48,57 @@ class LogfileConsumer implements ConsumerInterface
         }
 
         // Read file
+        $errors = [];
         $prevLines = '';        // Line before
         $error = null;          // Error text
         $countErrorStrings = 0; // Error strings count
+        $osVersion = null;      // Detected OS
 
         while (($currLine = fgets($logResource)) !== false) {
-            if (preg_match('/^descr : .*$/', $currLine)) {
+            if (preg_match('/^descr\s+:\s+.*$/', $currLine)) {  // Look for error START
                 $error = $prevLines . $currLine;
                 $countErrorStrings = 2;
-            } elseif ($error) {
+            } elseif ($error) {                             // Collect error strings
                 $error .= $currLine;
                 $countErrorStrings++;
             }
 
-            if ($error && (preg_match('/^line  : .*$/', $currLine) || $countErrorStrings > 9)) {
-                $client = new \Raven_Client($this->sentryDsn);
-                $client->captureMessage($error);
+            // Detect error END
+            if ($error && (preg_match('/^line\s{2}:\s+.*$/', $currLine) || $countErrorStrings > 9)) {
+                $errors[] = $error;
                 $error = null;
                 $countErrorStrings = 0;
             }
+
             $prevLines = $currLine;
+
+            if ($osVersion) {
+                continue;
+            } elseif (preg_match('/^\s+OSVersion\s+=\s+\'(\w+)\s/', $currLine, $matches)) {
+                $osVersion = $matches[1];
+            }
         }
 
         fclose($logResource);
+
+        foreach ($errors as $error) {
+            $errCode = '';
+            if (preg_match('/code\s+:\s+(\d+)/', $error, $matches)) {
+                $errCode = $matches[1];
+            } else {
+                if (preg_match('/file\s+:\s+([^\s]+)\S/', $error, $matches)) {
+                    $errCode .= $matches[1];
+                }
+                if (preg_match('/descr\s+:\s+(.*)\s/', $error, $matches)) {
+                    $errCode .= $matches[1];
+                }
+            }
+            var_dump($osVersion, $errCode, $error);
+        }
+
+        // @todo Убрать после окончания работы над поиском ошибок
+        return self::MSG_REJECT_REQUEUE;
+
         unlink($message['path']);
 
         return self::MSG_ACK;
