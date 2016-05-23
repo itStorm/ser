@@ -82,39 +82,51 @@ class LogfileConsumer implements ConsumerInterface
         fclose($logResource);
 
         foreach ($errors as $error) {
-            $errCode = '';
-            if (preg_match('/code\s+:\s+(\d+)/', $error, $matches)) {
-                $errCode = $matches[1];
-            } else {
-                if (preg_match('/file\s+:\s+([^\s]+)\S/', $error, $matches)) {
-                    $errCode .= $matches[1];
-                }
-                if (preg_match('/descr\s+:\s+(.*)\s/', $error, $matches)) {
-                    $errCode .= $matches[1];
-                }
-                $errCode = md5($errCode);
-            }
-
-            // Message format
-            $template = <<<TEXT
-Code: {$errCode}
-Platform: %s
-Error: %s
-TEXT;
-            // Send error to Sentry
-            $client = new \Raven_Client($this->sentryDsn);
-            $client->captureMessage($template, [
-                $osVersion,
-                $error,
-            ], [
-                'tags' => [
-                    'platform' => $osVersion,
-                ],
-            ]);
+            $this->sendError($error);
         }
 
         unlink($message['path']);
 
         return self::MSG_ACK;
+    }
+
+
+    /**
+     * Send error into Sentry
+     * @param string $error
+     * @param string $osVersion
+     */
+    protected function sendError($error, $osVersion = null)
+    {
+        $errCode = '';
+        if (preg_match('/code\s+:\s+(\d+)/', $error, $matches)) {
+            $errCode = $matches[1];
+        } else {
+            if (preg_match('/file\s+:\s+([^\s]+)\S/', $error, $matches)) {
+                $errCode .= $matches[1];
+            }
+            if (preg_match('/descr\s+:\s+(.*)\s/', $error, $matches)) {
+                $errCode .= $matches[1];
+            }
+            $errCode = md5($errCode);
+        }
+
+
+        if ($osVersion) {
+            $template = "Code: {$errCode}\nPlatform: %s\nError: %s";
+            $params = [$osVersion, $error];
+            $options = [
+                'tags' => [
+                    'platform' => $osVersion,
+                ],
+            ];
+        } else {
+            $template = "Code: {$errCode}\nError: %s";
+            $params = [$error];
+            $options = [];
+        }
+
+        $client = new \Raven_Client($this->sentryDsn);
+        $client->captureMessage($template, $params, $options);
     }
 }
