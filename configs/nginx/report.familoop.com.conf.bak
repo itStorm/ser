@@ -3,18 +3,18 @@ server {
 	client_max_body_size 50M;
 
 	server_name     report.familoop.com dev.report.familoop.com report.familoop.dev;
-	root            /home/vagrant/wwwroot/ser/web;
+	root            /wwwroot/amustware/ser/web/;
 	index           index.php;
 
-	access_log /vagrant/wwwroot/log/report.familoop.com.access.log;
-	error_log /vagrant/wwwroot/log/report.familoop.com.error.log;
+	access_log /wwwroot/log/report-access.log;
+	error_log /wwwroot/log/report-error.log;
 
 	location ~ "/upload[\/]{0,1}$" {
 		 # Pass altered request body to this location
 		 upload_pass   @upload;
 
 		 # Store files to this location
-		 upload_store /home/vagrant/wwwroot/ser/reports;
+		 upload_store /wwwroot/amustware/ser/reports;
 
 		 # Set specified fields in request body
 		 upload_set_form_field $upload_field_name.name "$upload_file_name";
@@ -26,7 +26,7 @@ server {
 		 #upload_aggregate_form_field "$upload_field_name.size" "$upload_file_size";
 
 		 # Pass matching fields from client to backend
-		 upload_pass_form_field "^(submit|description)$";§
+		 upload_pass_form_field "^(submit|description)$";
 
 		 upload_cleanup 400 404 499 500-505;
 	}

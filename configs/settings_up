@@ -35,3 +35,11 @@ app/console reports:clear-files
 
 5. Handle log files command
 app/console rabbitmq:consumer -w -l 256 -m 1 upload_log
+
+6. Install supervisor
+apt-get install supervisor
+cp /home/vagrant/wwwroot/ser/configs/supervisor/ser.conf /etc/supervisor/conf.d/
+
+supervisorctl
+ => reread
+ => reload

@@ -3,6 +3,6 @@ parameters:
     amqp.port: 5672
     amqp.user: guest
     amqp.password: guest
-    reports.path: /home/vagrant/wwwroot/ser/reports
+    reports.path: /wwwroot/amustware/ser/reports
     reports.old_file_time_diff: 600
     sentry.dsn: https://key@sentry.dev/10
