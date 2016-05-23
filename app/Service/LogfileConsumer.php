@@ -92,12 +92,26 @@ class LogfileConsumer implements ConsumerInterface
                 if (preg_match('/descr\s+:\s+(.*)\s/', $error, $matches)) {
                     $errCode .= $matches[1];
                 }
+                $errCode = md5($errCode);
             }
-            var_dump($osVersion, $errCode, $error);
-        }
 
-        // @todo Убрать после окончания работы над поиском ошибок
-        return self::MSG_REJECT_REQUEUE;
+            // Message format
+            $template = <<<TEXT
+Code: {$errCode}
+Platform: %s
+Error: %s
+TEXT;
+            // Send error to Sentry
+            $client = new \Raven_Client($this->sentryDsn);
+            $client->captureMessage($template, [
+                $osVersion,
+                $error,
+            ], [
+                'tags' => [
+                    'platform' => $osVersion,
+                ],
+            ]);
+        }
 
         unlink($message['path']);
 
