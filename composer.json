@@ -5,8 +5,8 @@
         "symfony/http-foundation": "2.8.*",
         "symfony/config": "2.8.*",
         "php-amqplib/rabbitmq-bundle": "^1.9",
-        "symfony/http-kernel": "^3.0",
-        "symfony/finder": "^3.0",
+        "symfony/http-kernel": "2.8.*",
+        "symfony/finder": "2.8.*",
         "sentry/sentry": "^0.18.0"
     }
 }
